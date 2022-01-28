@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Arexstorm个人工作站</title>
+  
+  
+  <link href="http://sandiegoe.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://sandiegoe.github.io/"/>
+  <updated>2022-01-28T07:32:12.067Z</updated>
+  <id>http://sandiegoe.github.io/</id>
+  
+  <author>
+    <name>Arexstorm</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>动态年龄</title>
+    <link href="http://sandiegoe.github.io/2022/01/28/%E5%8A%A8%E6%80%81%E5%B9%B4%E9%BE%84/"/>
+    <id>http://sandiegoe.github.io/2022/01/28/%E5%8A%A8%E6%80%81%E5%B9%B4%E9%BE%84/</id>
+    <published>2022-01-28T07:32:12.000Z</published>
+    <updated>2022-01-28T07:32:12.067Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>标量替换</title>
+    <link href="http://sandiegoe.github.io/2022/01/28/%E6%A0%87%E9%87%8F%E6%9B%BF%E6%8D%A2/"/>
+    <id>http://sandiegoe.github.io/2022/01/28/%E6%A0%87%E9%87%8F%E6%9B%BF%E6%8D%A2/</id>
+    <published>2022-01-28T07:31:19.000Z</published>
+    <updated>2022-01-28T07:31:19.565Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+</feed>
