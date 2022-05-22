@@ -6,7 +6,7 @@
   <link href="http://sandiegoe.github.io/atom.xml" rel="self"/>
   
   <link href="http://sandiegoe.github.io/"/>
-  <updated>2022-05-17T14:55:02.331Z</updated>
+  <updated>2022-05-22T14:57:41.081Z</updated>
   <id>http://sandiegoe.github.io/</id>
   
   <author>
@@ -15,6 +15,143 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis的两种使用场景：缓存和数据库</title>
+    <link href="http://sandiegoe.github.io/2022/05/22/Redis%E7%9A%84%E4%B8%A4%E7%A7%8D%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%BC%93%E5%AD%98%E5%92%8C%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    <id>http://sandiegoe.github.io/2022/05/22/Redis%E7%9A%84%E4%B8%A4%E7%A7%8D%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%BC%93%E5%AD%98%E5%92%8C%E6%95%B0%E6%8D%AE%E5%BA%93/</id>
+    <published>2022-05-22T14:30:34.000Z</published>
+    <updated>2022-05-22T14:57:41.081Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="redis的使用场景"><a class="markdownIt-Anchor" href="#redis的使用场景"></a> Redis的使用场景</h1><p>Redis有两种典型的使用场景，一个是把Redis作为缓存来使用，另一个是把Redis作为数据库来使用。针对不同使用场景，对于Redis的要求也是不一样的。</p><h1 id="作为缓存"><a class="markdownIt-Anchor" href="#作为缓存"></a> 作为缓存</h1><h2 id="特点"><a class="markdownIt-Anchor" href="#特点"></a> 特点</h2><ul><li>缓存的数据不重要，是允许丢的</li><li>不是全量数据</li><li>随着请求缓存的数据会变化：内存大小是有限制的，不可能一直放，将热点数据放入缓存，非热点数据移除缓存</li><li>存放的是热数据</li></ul><h2 id="随着请求缓存的数据会变化"><a class="markdownIt-Anchor" href="#随着请求缓存的数据会变化"></a> 随着请求缓存的数据会变化</h2><h3 id="业务逻辑"><a class="markdownIt-Anchor" href="#业务逻辑"></a> 业务逻辑</h3><p>key是有有效期的</p><ul><li>key的访问不会影响缓存key的过期时间</li><li>key更新，会移除key的过期时间，如果更新的时候未指定过期时间</li><li>有效期随着时间不断减少，到达时间，key就被淘汰了</li><li>可以实现定时，比如统一24:00过期</li></ul><p>怎么实现过期？</p><ul><li>被动：访问该key的时候，判断有没有过期，如果过期自动删掉并返回空</li><li>主动：通过轮询，周期性的方式来扫描过期的key来删除</li></ul><h3 id="业务运转"><a class="markdownIt-Anchor" href="#业务运转"></a> 业务运转</h3><p>内存是有限的，随着访问应该要淘汰掉冷数据</p><ul><li>maxmemory bytes：设置Redis最大内存</li><li>maxmemory-policy：到达最大内存之后，对应的淘汰策略是什么</li></ul><h2 id="redis几种内存淘汰策略"><a class="markdownIt-Anchor" href="#redis几种内存淘汰策略"></a> Redis几种内存淘汰策略</h2><h3 id="noeviction"><a class="markdownIt-Anchor" href="#noeviction"></a> noeviction</h3><p>不驱逐任何key，客户端返回异常</p><h3 id=""><a class="markdownIt-Anchor" href="#"></a> </h3><h1 id="作为数据库"><a class="markdownIt-Anchor" href="#作为数据库"></a> 作为数据库</h1><h2 id="特点-2"><a class="markdownIt-Anchor" href="#特点-2"></a> 特点</h2><ul><li>数据很重要，不能丢失，一丢失就影响业务了</li><li>追求速度和持久性</li></ul><p>需要开启RDB或者AOF</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;redis的使用场景&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#redis的使用场景&quot;&gt;&lt;/a&gt; Redis的使用场景&lt;/h1&gt;
+&lt;p&gt;Redis有两种典型的使用场景，一个是把Redis作为缓存来使用，另一个是把Redis作为数据库</summary>
+      
+    
+    
+    
+    <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="数据库" scheme="http://sandiegoe.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/"/>
+    
+    <category term="缓存" scheme="http://sandiegoe.github.io/tags/%E7%BC%93%E5%AD%98/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis布隆过滤器</title>
+    <link href="http://sandiegoe.github.io/2022/05/18/Redis%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/"/>
+    <id>http://sandiegoe.github.io/2022/05/18/Redis%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/</id>
+    <published>2022-05-17T17:24:39.000Z</published>
+    <updated>2022-05-22T14:35:07.325Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="什么是布隆过滤器"><a class="markdownIt-Anchor" href="#什么是布隆过滤器"></a> 什么是布隆过滤器</h1><p>有时候我们可能希望快速判断某个key是否存在我们系统内，一种直观的想法是，拿着这个key到相应存储中查一遍，能查到，就说明存在，查不到则说明不存在。那么有没有一种更简单的方式来实现呢，因为有时候通过数据库查询的开销可能比较大。布隆过滤器就是一个比较好的选择，可以快速判断某个key是否存在，当然它并不是完全准确，有一定的误差。</p><h2 id="实现原理"><a class="markdownIt-Anchor" href="#实现原理"></a> 实现原理</h2><h3 id="添加"><a class="markdownIt-Anchor" href="#添加"></a> 添加</h3><p>它会维护一个bitmap，当我们添加key的时候，会通过多个映射函数，计算出这个key在bitmap中的位置，并将相应位置的设置成1</p><h3 id="查询"><a class="markdownIt-Anchor" href="#查询"></a> 查询</h3><p>当查询一个key的时候，同样会经过映射函数，计算该key在bitmap中的位置，当全部位置为1的时候，表示该key已经存在，当有一个位置为0时，表示该key不存在</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220522215614.png" alt="" /></p><h2 id="布隆过滤器的几种结合方式"><a class="markdownIt-Anchor" href="#布隆过滤器的几种结合方式"></a> 布隆过滤器的几种结合方式</h2><h3 id="client端完成"><a class="markdownIt-Anchor" href="#client端完成"></a> client端完成</h3><p>在客户端维护bitmap，并实现布隆过滤器的算法</p><h3 id="client端算法redis保存bitmap"><a class="markdownIt-Anchor" href="#client端算法redis保存bitmap"></a> client端算法,Redis保存bitmap</h3><p>在redis中保存bitmap信息，在客户端来实现布隆过滤器算法</p><h3 id="redis-bloom模块"><a class="markdownIt-Anchor" href="#redis-bloom模块"></a> Redis Bloom模块</h3><p>通过Redis Bloom模块完成bitmap的存储和算法实现</p><h2 id="注意事项"><a class="markdownIt-Anchor" href="#注意事项"></a> 注意事项</h2><ul><li>不能删除key</li><li>不存在是精确的，存在是不精确的：通过布隆过滤器判断某个key存在时，不一定真的存在，有可能是对应的位被其他key置成了1，存在误差。这个误差和bitmap位数和放入key的数量相关</li><li>有哪些key，需要事先向bitmap中来标记</li><li>请求有可能会被误标记</li><li>概率解决问题，不可能100%阻挡</li><li>在一定概率上会大量减少因为穿透导致的放行</li><li>实现成本低</li></ul><h1 id="布隆过滤器怎么用"><a class="markdownIt-Anchor" href="#布隆过滤器怎么用"></a> 布隆过滤器怎么用</h1><h2 id="安装布隆过滤器模块"><a class="markdownIt-Anchor" href="#安装布隆过滤器模块"></a> 安装布隆过滤器模块</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget https://github.com/RedisBloom/RedisBloom/archive/refs/tags/v2.0.3.tar.gz</span><br><span class="line">tar -zcvf v2.0.3.tar.gz</span><br><span class="line">cd RedisBloom-2.0.3</span><br><span class="line">make </span><br><span class="line">cp redisbloom.so /opt/redis7</span><br><span class="line">redis-server --loadmodule /opt/redis7/redisbloom.so</span><br></pre></td></tr></table></figure><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220522223403.png" alt="" /></p><h2 id="使用"><a class="markdownIt-Anchor" href="#使用"></a> 使用</h2><p><code>bf.add</code>：把某个key添加到布隆过滤器中<br /><code>bf.exists</code>：判断某个key是否存在</p><h1 id="使用场景"><a class="markdownIt-Anchor" href="#使用场景"></a> 使用场景</h1><h2 id="缓存穿透"><a class="markdownIt-Anchor" href="#缓存穿透"></a> 缓存穿透</h2><p>缓存穿透指的是用户请求的数据即不在缓存，也不在数据库内，导致每次请求都需要查询数据库。</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220522220946.png" alt="" /></p><h3 id="解决办法"><a class="markdownIt-Anchor" href="#解决办法"></a> 解决办法</h3><h4 id="布隆过滤器"><a class="markdownIt-Anchor" href="#布隆过滤器"></a> 布隆过滤器</h4><p>通过布隆过滤器判断某个key是否存在，当布隆过滤器返回不存在时，直接返回，不再触发数据库查询。当然不能100%阻拦这种查询，还是有一定概率会发起数据库的查询，但是能够阻拦大部分请求。</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220522221029.png" alt="" /></p><h4 id="空对象"><a class="markdownIt-Anchor" href="#空对象"></a> 空对象</h4><p>第一次访问不存在的时候，直接在缓存中放一个空内容。后续请求全部走Redis查询，返回空内容。</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220522221009.png" alt="" /></p><h4 id="对比"><a class="markdownIt-Anchor" href="#对比"></a> 对比</h4><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220522221149.png" alt="" /></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;什么是布隆过滤器&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#什么是布隆过滤器&quot;&gt;&lt;/a&gt; 什么是布隆过滤器&lt;/h1&gt;
+&lt;p&gt;有时候我们可能希望快速判断某个key是否存在我们系统内，一种直观的想法是，拿着这个key到相应存储中查一遍，</summary>
+      
+    
+    
+    
+    <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="模块" scheme="http://sandiegoe.github.io/tags/%E6%A8%A1%E5%9D%97/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis事物解析</title>
+    <link href="http://sandiegoe.github.io/2022/05/18/Redis%E4%BA%8B%E7%89%A9%E8%A7%A3%E6%9E%90/"/>
+    <id>http://sandiegoe.github.io/2022/05/18/Redis%E4%BA%8B%E7%89%A9%E8%A7%A3%E6%9E%90/</id>
+    <published>2022-05-17T16:40:54.000Z</published>
+    <updated>2022-05-22T13:36:29.831Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="redis的事物是什么"><a class="markdownIt-Anchor" href="#redis的事物是什么"></a> Redis的事物是什么</h1><h2 id="什么是事物"><a class="markdownIt-Anchor" href="#什么是事物"></a> 什么是事物？</h2><p>事物中包含了一组操作，这些操作要么全部执行，要么全部不执行，实现这样的效果就称作为事物。</p><h2 id="redis和事物的关系"><a class="markdownIt-Anchor" href="#redis和事物的关系"></a> Redis和事物的关系</h2><p>Redis支持简单的事物，为什么说简单呢？因为Redis不支持事物的回滚。Redis的设计理念是为了追求性能，支持完成的事物，会增加系统的复杂度，对于性能也会有影响，因此在使用Redis事物的时候需要特别注意。</p><h2 id="事物中的操作记录在哪"><a class="markdownIt-Anchor" href="#事物中的操作记录在哪"></a> 事物中的操作记录在哪</h2><p>Redis是单线程的，不同客户端的事物彼此之间是相关隔离、相互独立的。当一个客户端开启了一个事物，客户端在exec之前提交的命令会放到一个缓冲区中，当客户端执行exec，Redis Server会执行事物中的所有操作。对于Redis来说，不同的事物都是排队在执行。</p><h2 id="多个客户端事物的执行顺序"><a class="markdownIt-Anchor" href="#多个客户端事物的执行顺序"></a> 多个客户端事物的执行顺序</h2><p>通过前面的描述，我们知道当客户端执行exec时，会触发Redis执行事物中的操作。因此Redis Server对于多个客户端提交的事物，会看哪个<code>事物先执行exec</code>，对于Redis来说时单线程来执行，肯定会有一个事物提交exec。当Redis Server接收到事物的exec命令时，就会执行该事物的所有操作，即使该事物的Multi可能比另外一个事物后提交。</p><h1 id="redis事物怎么用"><a class="markdownIt-Anchor" href="#redis事物怎么用"></a> Redis事物怎么用</h1><h2 id="help"><a class="markdownIt-Anchor" href="#help"></a> help</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">help @transactions</span><br></pre></td></tr></table></figure><h2 id="简单使用"><a class="markdownIt-Anchor" href="#简单使用"></a> 简单使用</h2><p><code>multi</code>：表示开启一个事物，后续可以跟若干个操作，这些操作并不会立即执行<br /><code>exec</code>：表示提交一个事物，Redis将会执行事物的所有操作</p><h2 id="停止事物"><a class="markdownIt-Anchor" href="#停止事物"></a> 停止事物</h2><p><code>discard</code>：表示停止事物的执行</p><h2 id="乐观锁"><a class="markdownIt-Anchor" href="#乐观锁"></a> 乐观锁</h2><p>通过<code>watch</code>可以为实现实现一个类似乐观锁的效果，watch命令会观察某个key是否被其他客户端修改过，如果发生了修改，那么该事物不会执行，只有当该key没有被修改过，事物才能够执行。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">set key java</span><br><span class="line">watch key </span><br><span class="line">multi</span><br><span class="line">set k1 hello</span><br><span class="line">get key</span><br><span class="line">exec</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;redis的事物是什么&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#redis的事物是什么&quot;&gt;&lt;/a&gt; Redis的事物是什么&lt;/h1&gt;
+&lt;h2 id=&quot;什么是事物&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href</summary>
+      
+    
+    
+    
+    <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="事物" scheme="http://sandiegoe.github.io/tags/%E4%BA%8B%E7%89%A9/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis发布订阅模型</title>
+    <link href="http://sandiegoe.github.io/2022/05/18/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B/"/>
+    <id>http://sandiegoe.github.io/2022/05/18/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B/</id>
+    <published>2022-05-17T16:40:46.000Z</published>
+    <updated>2022-05-18T14:13:12.987Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="什么是发布订阅模型"><a class="markdownIt-Anchor" href="#什么是发布订阅模型"></a> 什么是发布订阅模型</h1><p>Redis是支持发布订阅，发布的时候，先指定channel，然后发布消息；订阅的时候也需指定channel，当发布和订阅的是同一个channel时，发布者发送的消息会被所有已经订阅这个channel的客户端收到。<br /><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220518215502.png" alt="发布订阅模型" /></p><h1 id="redis发布订阅怎么用"><a class="markdownIt-Anchor" href="#redis发布订阅怎么用"></a> Redis发布订阅怎么用</h1><p><code>help @pubsub</code><br /><code>pubsub channels</code>：查询有哪些channel<br /><code>pubsub numsub</code>：查看channel的订阅数<br /><code>pubsub numpt</code>：查看模式的订阅数</p><h2 id="发布"><a class="markdownIt-Anchor" href="#发布"></a> 发布</h2><p><code>publish</code>：指定channel以及需要发送的消息</p><h2 id="订阅"><a class="markdownIt-Anchor" href="#订阅"></a> 订阅</h2><p><code>subscribe</code>：可以指定多个channel<br /><code>psubscribe</code>：支持按照模式订阅</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220518220016.png" alt="示意图" /></p><h2 id="注意事项"><a class="markdownIt-Anchor" href="#注意事项"></a> 注意事项</h2><ul><li>订阅者无法收到历史消息，也就是只有监听channel之后发送的消息才能被接收到</li><li>Redis不会对消息进行持久化</li><li>和Kafka，RabbitMQ等消息队列相比，Redis的功能比较简单。如果使用场景对于消息的持久化、消息的回溯不关心，那么Redis是一个不错的选择。</li></ul><h1 id="具体案例"><a class="markdownIt-Anchor" href="#具体案例"></a> 具体案例</h1><h2 id="聊天室"><a class="markdownIt-Anchor" href="#聊天室"></a> 聊天室</h2><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220518221236.png" alt="" /></p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220518221306.png" alt="" /></p><h2 id="公告牌"><a class="markdownIt-Anchor" href="#公告牌"></a> 公告牌</h2><h2 id="服务之间的解耦合"><a class="markdownIt-Anchor" href="#服务之间的解耦合"></a> 服务之间的解耦合</h2>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;什么是发布订阅模型&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#什么是发布订阅模型&quot;&gt;&lt;/a&gt; 什么是发布订阅模型&lt;/h1&gt;
+&lt;p&gt;Redis是支持发布订阅，发布的时候，先指定channel，然后发布消息；订阅的时候也需指定chann</summary>
+      
+    
+    
+    
+    <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="pub/sub" scheme="http://sandiegoe.github.io/tags/pub-sub/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Redis Pipeline解析</title>
+    <link href="http://sandiegoe.github.io/2022/05/18/Redis%20Pipeline%E8%A7%A3%E6%9E%90/"/>
+    <id>http://sandiegoe.github.io/2022/05/18/Redis%20Pipeline%E8%A7%A3%E6%9E%90/</id>
+    <published>2022-05-17T16:40:36.000Z</published>
+    <updated>2022-05-18T13:46:49.334Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="pipeline是什么"><a class="markdownIt-Anchor" href="#pipeline是什么"></a> Pipeline是什么</h1><p>Pipeline也叫做流水线，它可以将一组redis命令进行封装，然后一次性的发送给Redis Server。假设我们需要访问10条redis key数据，一种常见的做法是每条key，客户端发送一条get请求取回数据，循环10次，取出全部的数据。如果有了Pipeline就可以将这10条get命令封装一个请求，一次性的发送到Redis Server，Redis Server接收到这个请求之后，收集10条命令的结果一次性的返回给客户端。</p><h1 id="为什么需要pipeline"><a class="markdownIt-Anchor" href="#为什么需要pipeline"></a> 为什么需要Pipeline</h1><h2 id="请求过程"><a class="markdownIt-Anchor" href="#请求过程"></a> 请求过程</h2><p>Redis客户端发起请求到Redis Server反悔结果，中间大概可以划分四个步骤：</p><ul><li>第一步：Redis客户端将请求发送Redis Server</li><li>第二步：Redis Server接收请求，命令排队</li><li>第三步：Redis Server执行命令</li><li>第四步：Redis Server将执行的结果返回给客户端<br />其中第一步和第四步都是需要有网络，称之为RTT(Round Trip Time， 往返时间)</li></ul><h2 id="优势"><a class="markdownIt-Anchor" href="#优势"></a> 优势</h2><p>当多个命令可以合并的时候，就可以不用每次都需要发送命令，返回结果。此时通过Pipeline将多个命令合并成一个请求，减少了网络交互次数，节省网络开销，提高了效率。特别是针对网络时延比较明显的大的，效果更显著</p><h2 id="使用场景"><a class="markdownIt-Anchor" href="#使用场景"></a> 使用场景</h2><ul><li>初始化数据</li></ul><h2 id="注意事项"><a class="markdownIt-Anchor" href="#注意事项"></a> 注意事项</h2><p>Pipeline中包含的命令也不能过大，增大了等待时间，也会造成一定的网络堵塞</p><h1 id="怎么使用"><a class="markdownIt-Anchor" href="#怎么使用"></a> 怎么使用</h1><h2 id="nc"><a class="markdownIt-Anchor" href="#nc"></a> nc</h2><p>nc，全称是netcat。当没有redis-cli客户端的时候，也可以通过nc向Redis Server发送命令。Redis Server默认端口是6379。</p><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">yum install nc</span><br><span class="line">nc localhost 6379</span><br><span class="line">keys *</span><br><span class="line">*0</span><br><span class="line">set a 1</span><br><span class="line">+OK</span><br><span class="line">get a </span><br><span class="line"><span class="meta">$</span><span class="bash">1</span></span><br><span class="line">1</span><br></pre></td></tr></table></figure><h2 id="pipeline"><a class="markdownIt-Anchor" href="#pipeline"></a> Pipeline</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo -e &quot;get a\nset a 20\nget a\nflushdb&quot; | redis-cli --pipe</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;pipeline是什么&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#pipeline是什么&quot;&gt;&lt;/a&gt; Pipeline是什么&lt;/h1&gt;
+&lt;p&gt;Pipeline也叫做流水线，它可以将一组redis命令进行封装，然后一次性的发送给Red</summary>
+      
+    
+    
+    
+    <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="Pipeline" scheme="http://sandiegoe.github.io/tags/Pipeline/"/>
+    
+  </entry>
   
   <entry>
     <title>Redis数据类型</title>

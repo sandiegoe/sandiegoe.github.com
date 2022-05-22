@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://sandiegoe.github.io/2022/05/22/Redis%E7%9A%84%E4%B8%A4%E7%A7%8D%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF%EF%BC%9A%E7%BC%93%E5%AD%98%E5%92%8C%E6%95%B0%E6%8D%AE%E5%BA%93/</loc>
+    <lastmod>2022-05-22</lastmod>
+  </url>
+  <url>
+    <loc>http://sandiegoe.github.io/2022/05/18/Redis%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/</loc>
+    <lastmod>2022-05-22</lastmod>
+  </url>
+  <url>
+    <loc>http://sandiegoe.github.io/2022/05/18/Redis%E4%BA%8B%E7%89%A9%E8%A7%A3%E6%9E%90/</loc>
+    <lastmod>2022-05-22</lastmod>
+  </url>
+  <url>
+    <loc>http://sandiegoe.github.io/2022/05/18/Redis%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%9E%8B/</loc>
+    <lastmod>2022-05-18</lastmod>
+  </url>
+  <url>
+    <loc>http://sandiegoe.github.io/2022/05/18/Redis%20Pipeline%E8%A7%A3%E6%9E%90/</loc>
+    <lastmod>2022-05-18</lastmod>
+  </url>
+  <url>
     <loc>http://sandiegoe.github.io/2022/05/15/Redis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</loc>
     <lastmod>2022-05-17</lastmod>
   </url>
