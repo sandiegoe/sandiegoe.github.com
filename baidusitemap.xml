@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://sandiegoe.github.io/2022/05/25/MySQL%E4%BA%8B%E7%89%A9%E8%A7%A3%E6%9E%90/</loc>
+    <lastmod>2022-05-26</lastmod>
+  </url>
+  <url>
     <loc>http://sandiegoe.github.io/2022/05/23/Redis%E6%8C%81%E4%B9%85%E5%8C%96%E6%9C%BA%E5%88%B6%E8%A7%A3%E6%9E%90-RDB%E5%92%8CAOF/</loc>
     <lastmod>2022-05-23</lastmod>
   </url>

@@ -6,7 +6,7 @@
   <link href="http://sandiegoe.github.io/atom.xml" rel="self"/>
   
   <link href="http://sandiegoe.github.io/"/>
-  <updated>2022-05-23T02:52:54.931Z</updated>
+  <updated>2022-05-26T07:33:16.677Z</updated>
   <id>http://sandiegoe.github.io/</id>
   
   <author>
@@ -15,6 +15,37 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>MySQL事物和索机制</title>
+    <link href="http://sandiegoe.github.io/2022/05/25/MySQL%E4%BA%8B%E7%89%A9%E8%A7%A3%E6%9E%90/"/>
+    <id>http://sandiegoe.github.io/2022/05/25/MySQL%E4%BA%8B%E7%89%A9%E8%A7%A3%E6%9E%90/</id>
+    <published>2022-05-24T16:19:08.000Z</published>
+    <updated>2022-05-26T07:33:16.677Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="什么是事物"><a class="markdownIt-Anchor" href="#什么是事物"></a> 什么是事物</h1><p>事物是指逻辑上的一组操作，要么全部都执行，要么全部不执行。事物可以分为数据库事物和分布式事物。本文主要说明的事数据库事物。</p><h2 id="事物的四个特性acid"><a class="markdownIt-Anchor" href="#事物的四个特性acid"></a> 事物的四个特性ACID</h2><p>说起事物一般都会说起其四大特性，原子性、一致性、隔离性和持久性。这几个特性之间的关系是，原子、隔离和持久是手段方法，通过这几个方法来实现一致，因此一致是目标。</p><ul><li>A(原子性)：通过undolog来实现</li></ul><blockquote><p>事物执行的最小单元，不能再拆分。一个事物中可以包含多个操作，这个多个操作要呢全部执行，要么全部不执行。</p></blockquote><ul><li>C(一致性)：通过A、I和D来实现</li></ul><blockquote><p>事物执行前后数据保持一致，比如在转账场景中，不管事物执行怎么样，总钱数是不变的。</p></blockquote><ul><li>I(隔离性)：通过锁和MVCC来实现</li></ul><blockquote><p>一个事物不会受到另外一个事物的影响，数据库的多个事物之间彼此是相互独立的。</p></blockquote><ul><li>D(持久性)：通过redolog来实现</li></ul><blockquote><p>事物一旦执行成功，就会永久保存，不管数据库发生什么故障，都不应该会对其有影响。</p></blockquote><h2 id="并发事物的几个问题"><a class="markdownIt-Anchor" href="#并发事物的几个问题"></a> 并发事物的几个问题</h2><h3 id="脏读"><a class="markdownIt-Anchor" href="#脏读"></a> 脏读</h3><p>A、B两个事物，A事物读取到了B事物中未提交的数据，这种就称之为脏读，数据是异常的。</p><h3 id="丢失修改"><a class="markdownIt-Anchor" href="#丢失修改"></a> 丢失修改</h3><p>A、B两个事物都对同一条数据进行更新，A事物修改完提交，B事物再修改提交，最后该数据是B事物修改之后的样子，丢失了第一条事物对数据的修改。</p><h3 id="不可重复读"><a class="markdownIt-Anchor" href="#不可重复读"></a> 不可重复读</h3><p>A、B两个事物，A事物查询了一条数据，B事物中修改了该数据的部分列，A事物随后再次查询，前后两次查询的数据不一样，这就是不可重复读。</p><h3 id="幻读"><a class="markdownIt-Anchor" href="#幻读"></a> 幻读</h3><p>A、B两个事物，A事物查询了一些数据，B事物中插入或者删除了符合A事物中查询提交的数据，随后A事物再次查询，发现多了或者少了一部分记录，这就是幻读。</p><p>产生的原因：快照读和当前读一起使用，如果一个事物中只有快照读，那么就不会有幻读的问题。</p><p><code>不可重复读</code>和<code>幻读</code>比较相似，<code>不可重复读</code>强调的是对于已有数据的修改，<code>幻读</code>强调的是插入或者删除了数据。</p><h2 id="事物隔离级别"><a class="markdownIt-Anchor" href="#事物隔离级别"></a> 事物隔离级别</h2><p>事物隔离级别是一个参数，可以通过调整这个参数来控制MySQL的行为。</p><h3 id="read-uncommitted"><a class="markdownIt-Anchor" href="#read-uncommitted"></a> READ-UNCOMMITTED</h3><p>读未提交，最低的隔离级别，会出现脏读、不可重复读和幻读的问题。</p><h3 id="read-committed"><a class="markdownIt-Anchor" href="#read-committed"></a> READ-COMMITTED</h3><p>读已提交，大多数数据库的隔离级别都是<code>READ-COMMITTED</code>，可以解决脏读的问题，但是还会出现不可重复读和幻读的问题。</p><h3 id="repeatable-read"><a class="markdownIt-Anchor" href="#repeatable-read"></a> REPEATABLE-READ</h3><p>重复读，是MySQL默认的隔离级别。可以解决脏读、不可重复读的问题，但是会出现幻读的问题。</p><h3 id="serializable"><a class="markdownIt-Anchor" href="#serializable"></a> SERIALIZABLE</h3><p>最高的隔离级别，多个事物之间挨个执行，可以解决脏读、不可重复读和幻读的问题，但是对于性能的影响也是最高。</p><h2 id="mysql默认隔离级别"><a class="markdownIt-Anchor" href="#mysql默认隔离级别"></a> MySQL默认隔离级别</h2><p>MySQL默认的隔离级别是REPEATABLE-READ。</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> @<span class="variable">@tx</span>_isolation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">select</span> @<span class="variable">@trasaction</span>_isolation;</span><br></pre></td></tr></table></figure><h1 id="mysql的几种log"><a class="markdownIt-Anchor" href="#mysql的几种log"></a> MySQL的几种log</h1><p><code>undolog</code></p><blockquote><p>回滚日志，为了实现原子性和MVCC<br />innodb存储引擎才有<br />记录了数据的多个版本，通过一个链表的形式来链接，链首是最新的数据版本，链尾诗最旧的数据版本</p></blockquote><p><code>redolog</code></p><blockquote><p>前滚日志，为了实现持久性<br />innodb存储引擎才有</p></blockquote><p><code>binlog</code></p><blockquote><p>实现主从复制的</p></blockquote><p><code>relaylog</code></p><blockquote><p>中继日志，在进行主从复制里，从机存储的日志文件</p></blockquote><p><code>slowlog</code></p><blockquote><p>慢查询日志</p></blockquote><p><code>error.log</code></p><blockquote><p>错误日志</p></blockquote><h1 id="二阶段提交"><a class="markdownIt-Anchor" href="#二阶段提交"></a> 二阶段提交</h1><p>这里主要说的是redolog和binlog之间怎么保证数据的一致性，我们都知道redolog是用来保证持久性的，binlog是用来做主从复制的。MySQL在保存一条数据的时候，是先存redolog呢，还是先存binlog呢？</p><p>在MySQL中通过二阶段提交来保证数据的一致性：</p><ul><li>redolog prepare</li><li>binlog</li><li>redolog commit</li></ul><h1 id="mvcc机制"><a class="markdownIt-Anchor" href="#mvcc机制"></a> MVCC机制</h1><p>MVCC中文是多版本并发控制。重点是解决并发读写场景的数据一致性问题。</p><h2 id="当前读"><a class="markdownIt-Anchor" href="#当前读"></a> 当前读</h2><p>读取的永远是最新的数据，不会读取到历史数据。update、delete、insert、select for update、select in share mode操作会触发当前读。</p><h2 id="快照读"><a class="markdownIt-Anchor" href="#快照读"></a> 快照读</h2><p>读取的是历史版本数据，不是最新的数据。select操作会触发快照读。</p><h2 id="隐藏字段"><a class="markdownIt-Anchor" href="#隐藏字段"></a> 隐藏字段</h2><p>数据库表除了包含我们声明的字段外，还会包含一些隐藏字段。MySQL中主要包含一下三个隐藏字段：<br /><code>DB_TRX_ID</code>：最近修改的事物ID，创建这条记录或者最近一次更新这条记录的事物ID<br /><code>DB_ROLL_PTR</code>：回滚指针，指向记录的上一个版本<br /><code>DB_ROW_ID</code>：隐藏主键，MySQL表中没有主键，会自动生成6个字节的row_id</p><h2 id="readview"><a class="markdownIt-Anchor" href="#readview"></a> readview</h2><p>在事物进行快照读的时候产生的<code>读视图</code>，保存的并不是真实数据，而是事物信息。<br /><code>trx_list</code></p><blockquote><p>当前系统活跃事物ID列表</p></blockquote><p><code>up_limit_id</code></p><blockquote><p>活跃列表中事物ID最小的值</p></blockquote><p><code>down_limit_id</code></p><blockquote><p>尚未分配的下一个事物ID</p></blockquote><h2 id="可见性算法"><a class="markdownIt-Anchor" href="#可见性算法"></a> 可见性算法</h2><ul><li>首先比较DB_TRX_ID &lt; up_limit_id,如果小于，则当前事务能看到DB_TRX_ID所在的记录，如果大于等于进入下一个判断</li><li>接下来判断DB_TRX_ID &gt;= low_limit_id,如果大于等于则代表DB_TRX_ID所在的记录在Read View生成后才出现的，那么对于当前事务肯定不可见，如果小于，则进入下一步判断</li><li>判断DB_TRX_ID是否在活跃事务中，如果在，则代表在Read View生成时刻，这个事务还是活跃状态，还没有commit，修改的数据，当前事务也是看不到，如果不在，则说明这个事务在Read View生成之前就已经开始commit，那么修改的结果是能够看见的。</li></ul><h2 id="case"><a class="markdownIt-Anchor" href="#case"></a> CASE</h2><h3 id="1"><a class="markdownIt-Anchor" href="#1"></a> 1</h3><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220526151103.png" alt="" /></p><h3 id="2"><a class="markdownIt-Anchor" href="#2"></a> 2</h3><p>第一次查询的时候创建了读视图，第二次沿用了第一次的读视图</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220526151907.png" alt="" /></p><h2 id="和事物隔离级别的关闭"><a class="markdownIt-Anchor" href="#和事物隔离级别的关闭"></a> 和事物隔离级别的关闭</h2><p>如果<code>READ-COMMITTED</code>隔离级别，每次在进行快照读读时候都会产生新的读视图，这就是<code>READ-COMMITTED</code>会存在不可重复读的问题</p><p>如果是<code>REPEATABLE-READ</code>隔离级别，只有在该事物第一次快照读读时候产生读视图，后面都是沿用第一次读视图</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;什么是事物&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#什么是事物&quot;&gt;&lt;/a&gt; 什么是事物&lt;/h1&gt;
+&lt;p&gt;事物是指逻辑上的一组操作，要么全部都执行，要么全部不执行。事物可以分为数据库事物和分布式事物。本文主要说明的事数据库事物。&lt;/</summary>
+      
+    
+    
+    
+    <category term="MySQL" scheme="http://sandiegoe.github.io/categories/MySQL/"/>
+    
+    
+    <category term="MySQL" scheme="http://sandiegoe.github.io/tags/MySQL/"/>
+    
+    <category term="事物" scheme="http://sandiegoe.github.io/tags/%E4%BA%8B%E7%89%A9/"/>
+    
+    <category term="MVCC" scheme="http://sandiegoe.github.io/tags/MVCC/"/>
+    
+    <category term="锁" scheme="http://sandiegoe.github.io/tags/%E9%94%81/"/>
+    
+  </entry>
   
   <entry>
     <title>Redis持久化机制解析(RDB和AOF)</title>
@@ -122,9 +153,9 @@
     <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
     
     
-    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
-    
     <category term="事物" scheme="http://sandiegoe.github.io/tags/%E4%BA%8B%E7%89%A9/"/>
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
     
   </entry>
   
