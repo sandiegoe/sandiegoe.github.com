@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://sandiegoe.github.io/2022/05/27/Redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E8%A7%A3%E6%9E%90%E5%8F%8A%E5%93%A8%E5%85%B5/</loc>
+    <lastmod>2022-05-27</lastmod>
+  </url>
+  <url>
     <loc>http://sandiegoe.github.io/2022/05/27/Redis-AKF%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/</loc>
     <lastmod>2022-05-27</lastmod>
   </url>

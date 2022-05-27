@@ -6,7 +6,7 @@
   <link href="http://sandiegoe.github.io/atom.xml" rel="self"/>
   
   <link href="http://sandiegoe.github.io/"/>
-  <updated>2022-05-27T01:23:41.713Z</updated>
+  <updated>2022-05-27T06:56:36.691Z</updated>
   <id>http://sandiegoe.github.io/</id>
   
   <author>
@@ -15,6 +15,35 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis主从模式解析及哨兵</title>
+    <link href="http://sandiegoe.github.io/2022/05/27/Redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E8%A7%A3%E6%9E%90%E5%8F%8A%E5%93%A8%E5%85%B5/"/>
+    <id>http://sandiegoe.github.io/2022/05/27/Redis%E4%B8%BB%E4%BB%8E%E6%A8%A1%E5%BC%8F%E8%A7%A3%E6%9E%90%E5%8F%8A%E5%93%A8%E5%85%B5/</id>
+    <published>2022-05-27T01:28:36.000Z</published>
+    <updated>2022-05-27T06:56:36.691Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="什么是主从模式"><a class="markdownIt-Anchor" href="#什么是主从模式"></a> 什么是主从模式</h1><p>主从属于AKF中在X轴上做横向扩展，是用来解决Master的单点故障问题。主从和主备还是有一些区别，从可以承担读请求，备机平时不承担业务，是用来当Master挂掉之后，升级成为新的Master继续对外提供服务。</p><blockquote><ul><li>Redis复制是异步的，可以配置当副本数链接少于配置的最小副本时，停止主节点的写入</li><li>可以配置复制积压的大小，当主从断开重新建立连接之后，如果是少于配置的复制积压大小，可以直接复制，否则可能就需要做一次rdb全量同步</li><li>配置好主从复制后，会自动进行，当因为网络问题自动尝试重新连接到主服务器，并与他们重新同步</li></ul></blockquote><h2 id="如何配置"><a class="markdownIt-Anchor" href="#如何配置"></a> 如何配置</h2><h3 id="配置参数"><a class="markdownIt-Anchor" href="#配置参数"></a> 配置参数</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 从节点是否允许使用旧数据对外提供查询</span></span><br><span class="line">replica-serve-stale-data yes</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 从节点只允许进行读操作</span></span><br><span class="line">replica-read-only yes</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 副本同步策略，diskless：直接蒋rdb写到replica sockets</span></span><br><span class="line">repl-diskless-sync yes</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 使用diskless，指定同步延迟时间</span></span><br><span class="line">repl-diskless-sync-delay 5</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 最大副本数</span></span><br><span class="line">repl-diskless-sync-max-replicas 0</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 不使用diskless加载(store the rdb file to the disk first)</span></span><br><span class="line">repl-diskless-load disabled</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 复制积压大小</span> </span><br><span class="line">repl-backlog-size 1mb</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 写入的最小的replica数</span> </span><br><span class="line">min-replicas-to-write 3</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 最小的延迟</span></span><br><span class="line">min-replicas-max-lag 10</span><br></pre></td></tr></table></figure><h3 id="实践"><a class="markdownIt-Anchor" href="#实践"></a> 实践</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /opt/redis7/nodes/replicas</span><br><span class="line">cd /opt/redis7/nodes/replicas</span><br><span class="line">mkdir master slave</span><br><span class="line">cd master</span><br><span class="line">redis-server --port 6379</span><br><span class="line">cd ../slave</span><br><span class="line">redis-server --port 6380 </span><br><span class="line"><span class="meta">#</span><span class="bash"> redis-server --port 6380 --replicaof 127.0.0.1 6379</span></span><br><span class="line"></span><br><span class="line">redis-cli -p 6380</span><br><span class="line">127.0.0.1:6380&gt; REPLICAOF 127.0.0.1 6379</span><br><span class="line"></span><br><span class="line">127.0.0.1:6380&gt; slaveof no one</span><br><span class="line"></span><br><span class="line">redis-cli -p 6379</span><br><span class="line">127.0.0.1:6379&gt; replicaof 127.0.0.1 6380</span><br></pre></td></tr></table></figure><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220527135510.png" alt="" /></p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220527135638.png" alt="" /></p><h1 id="哨兵"><a class="markdownIt-Anchor" href="#哨兵"></a> 哨兵</h1><p>主从切换可以手动进行，但是手动操作容易出错也麻烦，这时候就可以通过哨兵来自动监控master状态，并当master异常时，自动切换新的master。看下面的配置发现，sentinel中只配置了master节点的地址，sentinel怎么发现其他的从节点，以及sentinel如何发现其他的sentinel节点呢？答案就在<code>发布订阅</code>,sentinel通过<code>发布订阅</code>的方式来发现其他的哨兵</p><h2 id="实践-2"><a class="markdownIt-Anchor" href="#实践-2"></a> 实践</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /opt/redis7/nodes/sentinel</span><br><span class="line">cd /opt/redis7/nodes/sentinel</span><br><span class="line">mkdir 6379 6380 6381 26379 26380 26381</span><br><span class="line"></span><br><span class="line">redis-server --port 6379</span><br><span class="line">redis-server --port 6380</span><br><span class="line">redis-server --port 6381</span><br><span class="line"></span><br><span class="line">echo -e &quot;port 26379\nsentinel monitor redis_user 127.0.0.1 6380 2&quot; &gt; sentinel.conf</span><br><span class="line"></span><br><span class="line">cd 26379</span><br><span class="line">redis-server sentinel.conf --sentinel</span><br><span class="line">cd 26380</span><br><span class="line">redis-server sentinel.conf --sentinel</span><br><span class="line">cd 26381</span><br><span class="line">redis-server sentinel.conf --sentinel</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">kill redis_6379_id，会自动选举新的master，旧master恢复上线会变成slave重新加入进来</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;什么是主从模式&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#什么是主从模式&quot;&gt;&lt;/a&gt; 什么是主从模式&lt;/h1&gt;
+&lt;p&gt;主从属于AKF中在X轴上做横向扩展，是用来解决Master的单点故障问题。主从和主备还是有一些区别，从可以承担读请</summary>
+      
+    
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/categories/Redis/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="主从" scheme="http://sandiegoe.github.io/tags/%E4%B8%BB%E4%BB%8E/"/>
+    
+    <category term="哨兵" scheme="http://sandiegoe.github.io/tags/%E5%93%A8%E5%85%B5/"/>
+    
+  </entry>
   
   <entry>
     <title>Redis AKF原理解析</title>
@@ -180,9 +209,9 @@
     <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
     
     
-    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
-    
     <category term="事物" scheme="http://sandiegoe.github.io/tags/%E4%BA%8B%E7%89%A9/"/>
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
     
   </entry>
   
