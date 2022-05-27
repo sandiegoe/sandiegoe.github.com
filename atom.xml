@@ -6,7 +6,7 @@
   <link href="http://sandiegoe.github.io/atom.xml" rel="self"/>
   
   <link href="http://sandiegoe.github.io/"/>
-  <updated>2022-05-26T07:33:16.677Z</updated>
+  <updated>2022-05-27T01:23:41.713Z</updated>
   <id>http://sandiegoe.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Redis AKF原理解析</title>
+    <link href="http://sandiegoe.github.io/2022/05/27/Redis-AKF%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/"/>
+    <id>http://sandiegoe.github.io/2022/05/27/Redis-AKF%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/</id>
+    <published>2022-05-27T00:32:15.000Z</published>
+    <updated>2022-05-27T01:23:41.713Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="单节点redis有什么问题"><a class="markdownIt-Anchor" href="#单节点redis有什么问题"></a> 单节点Redis有什么问题</h1><p>单节点Redis搭建运维都很方便，无需考虑节点间的一致性问题。但是单节点Redis受制只有一台Redis节点，也会有一些问题</p><ul><li>单点故障：因为是单点的，当这个节点挂掉之后，Redis就不可用，对于业务会造成影响</li><li>容量：单点Redis容量是有限，而且Redis是内存型的，也不能无限扩展单节点的内存，对于Redis内存管理，维护也是一个挑战</li><li>压力：单点Redis性能有限，连接压力有限</li></ul><h1 id="什么是akf"><a class="markdownIt-Anchor" href="#什么是akf"></a> 什么是AKF</h1><p>鉴于单节点Redis存在以上三个问题，可以通过AKF理论来解决上述的问题。AKF可扩展立方体(Scalability Cube)是从X、Y和Z轴上来指导如何进行分布式系统的架构和划分。</p><h2 id="x轴"><a class="markdownIt-Anchor" href="#x轴"></a> X轴</h2><p>基于X轴做水平扩展，建立多个节点，构建成主从模式。其中主节点承担读写，从节点承担读，实现读写分离。每个节点存放的是全量数据。能够解决单点故障和一部分的压力。</p><h2 id="y轴"><a class="markdownIt-Anchor" href="#y轴"></a> Y轴</h2><p>基于Y轴按照功能、业务进行划分，不同业务的数据存储到不同Redis节点。比如用户信息存到一个Redis节点，订单信息存到另一个Redis节点，能够解决容量和压力。</p><h2 id="z轴"><a class="markdownIt-Anchor" href="#z轴"></a> Z轴</h2><p>基于Z轴数据分区，Y轴上按照业务划分之后，比如用户独立一个Redis，也可能遇到容量比较大，一个Redis还是放不下，这时候可以按照Z轴对数据进行分区，进一步拆分到不同的Redis节点中。</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220527085741.png" alt="" /></p><h1 id="主从一致性"><a class="markdownIt-Anchor" href="#主从一致性"></a> 主从一致性</h1><p>当按照AKF的指导原则来构建分布式系统时，又会遇到一个新的问题，那就是这么多Redis节点之间如何做数据同步，怎么保证一致性呢？</p><h2 id="强一致性"><a class="markdownIt-Anchor" href="#强一致性"></a> 强一致性</h2><p>客户端写入主节点之后，主节点会以同步阻塞的方式写入从节点，此时就是强一致性。但是会破坏可用性，当某个节点无法写入时，通过同步阻塞就会严重影响可用性。</p><h2 id="弱一致性"><a class="markdownIt-Anchor" href="#弱一致性"></a> 弱一致性</h2><p>客户端写入主节点之后，主节点会以异步的方式写入从节点，此时就是弱一致性，可能会丢失数据。</p><h2 id="最终一致性"><a class="markdownIt-Anchor" href="#最终一致性"></a> 最终一致性</h2><p>一段时间内可能是不一致的，但是保证最终是一致的。客户端写入主节点之后，主节点同步写入Kafka(kafka本身保证可靠性)，然后从节点消费Kafka来完成数据同步。</p><p><img src="https://raw.githubusercontent.com/sandiegoe/pic/main/img/20220527090611.png" alt="" /></p><h1 id="主节点的故障转移"><a class="markdownIt-Anchor" href="#主节点的故障转移"></a> 主节点的故障转移</h1><p>不管是主从，还是主备，都是为了保证主的高可用性(HA)，当主节点故障时怎么完成故障的转移，以及怎么判断主节点发生故障呢？</p><h2 id="如何判定故障"><a class="markdownIt-Anchor" href="#如何判定故障"></a> 如何判定故障</h2><p>为了判断主节点是否健康，可能需要另外一部分监控节点，来负责监控主节点的监控。</p><h3 id="强一致"><a class="markdownIt-Anchor" href="#强一致"></a> 强一致</h3><p>需要所有监控节点都给出OK，但是在分布式系统中，依赖全部都监控节点本身就不太可靠，比如可能发生网络分区等，无法收集到全部监控节点的投票。</p><h3 id="过半"><a class="markdownIt-Anchor" href="#过半"></a> 过半</h3><p>只要超过一半认为主节点挂掉，那么即可认为主节点挂掉，此时即使剩下一批都认为主节点还是健康，但是无法超过半数，不影响结果。</p><h2 id="故障转移"><a class="markdownIt-Anchor" href="#故障转移"></a> 故障转移</h2><h3 id="人工切换"><a class="markdownIt-Anchor" href="#人工切换"></a> 人工切换</h3><p>通过Redis本身提供的主从控制命令，来完成主节点的切换。</p><h3 id="seatinel"><a class="markdownIt-Anchor" href="#seatinel"></a> seatinel</h3><p>seatinel哨兵模式可以完成对主节点的故障的自动切换，能够支撑多套Redis环境，也就是通过一套seatinel来实现Redis Y轴上的扩展。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;单节点redis有什么问题&quot;&gt;&lt;a class=&quot;markdownIt-Anchor&quot; href=&quot;#单节点redis有什么问题&quot;&gt;&lt;/a&gt; 单节点Redis有什么问题&lt;/h1&gt;
+&lt;p&gt;单节点Redis搭建运维都很方便，无需考虑节点间的一致性问题。但是单节点Red</summary>
+      
+    
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/categories/Redis/"/>
+    
+    
+    <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="AKF" scheme="http://sandiegoe.github.io/tags/AKF/"/>
+    
+  </entry>
   
   <entry>
     <title>MySQL事物和索机制</title>
@@ -153,9 +180,9 @@
     <category term="缓存" scheme="http://sandiegoe.github.io/categories/%E7%BC%93%E5%AD%98/"/>
     
     
-    <category term="事物" scheme="http://sandiegoe.github.io/tags/%E4%BA%8B%E7%89%A9/"/>
-    
     <category term="Redis" scheme="http://sandiegoe.github.io/tags/Redis/"/>
+    
+    <category term="事物" scheme="http://sandiegoe.github.io/tags/%E4%BA%8B%E7%89%A9/"/>
     
   </entry>
   
